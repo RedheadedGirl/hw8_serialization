@@ -18,5 +18,6 @@ public class Main {
         System.out.println(cacheProxy.run("sd", 1d, new Date(2024, Calendar.JANUARY, 21)));
         System.out.println(cacheProxy.run("sd", 2d, new Date(2024, Calendar.JANUARY, 21)));
         System.out.println(cacheProxy.run("sd", 1d, new Date(2024, Calendar.JANUARY, 21)));
+        System.out.println(cacheProxy.run("sd", 3d, new Date(2024, Calendar.JANUARY, 21)));
     }
 }
