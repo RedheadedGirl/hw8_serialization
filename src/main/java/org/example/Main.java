@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         ClassLoader cl = WorkServiceImpl.class.getClassLoader();
         WorkService cacheProxy = (WorkService) Proxy.newProxyInstance(cl,
-                new Class[] {WorkService.class}, new CacheProxy(new WorkServiceImpl()));
+                new Class[] {WorkService.class}, new CacheProxy(new WorkServiceImpl(), "saved.bin"));
 
         System.out.println(cacheProxy.run("sd", 1d, new Date(2025, Calendar.JANUARY, 21)));
         System.out.println(cacheProxy.run("sd", 2d, new Date(2026, Calendar.JANUARY, 21)));

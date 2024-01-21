@@ -18,9 +18,11 @@ public class CacheProxy implements InvocationHandler {
 
     private Map<String, List<String>> resultByArg = new HashMap<>();
     private Object target;
+    private String serializationFileName;
 
-    public CacheProxy(Object target) {
+    public CacheProxy(Object target, String serializationFileName) {
         this.target = target;
+        this.serializationFileName = serializationFileName;
     }
 
     @Override
@@ -62,7 +64,7 @@ public class CacheProxy implements InvocationHandler {
     }
 
     private void serialize(HashMap<String, List<String>> map) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("saved.bin"))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serializationFileName))) {
             oos.writeObject(map);
         } catch (IOException e) {
             throw new SerializationException("Возникла ошибка при сериализации данных в файл");
@@ -70,7 +72,7 @@ public class CacheProxy implements InvocationHandler {
     }
 
     private HashMap<String, List<String>> deserialize() {
-        try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream("saved.bin"))) {
+        try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(serializationFileName))) {
             return (HashMap<String, List<String>>) oos.readObject();
         } catch (FileNotFoundException e) {
             throw new SerializationException("Не найден файл для десериализации");
