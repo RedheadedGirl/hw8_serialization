@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MapUtil {
 
-    public static boolean checkMapHasFreeSpace(Method method, Map<String, List<String>> map) {
+    public static boolean checkMapHasFreeSpace(Method method, Map<String, Object> map) {
         if (method.getReturnType().isAssignableFrom(List.class)) {
             int enoughStoreAmount = method.getAnnotation(Cache.class).enoughStoreAmount();
             if (enoughStoreAmount < 0) {

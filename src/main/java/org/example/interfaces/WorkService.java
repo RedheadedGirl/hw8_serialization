@@ -12,5 +12,8 @@ public interface WorkService {
 
     @Cache(cacheType = IN_MEMORY, enoughStoreAmount = 2)
     List<String> work(String item);
+
+    @Cache(cacheType = FILE, ignoreFields = {Double.class})
+    double multiplyOnTwo(int number, Double multiplier);
 }
 

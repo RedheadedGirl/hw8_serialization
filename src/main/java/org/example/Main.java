@@ -22,5 +22,10 @@ public class Main {
         System.out.println(cacheProxy.work("sd2"));
         System.out.println(cacheProxy.work("sd2"));
         System.out.println(cacheProxy.work("sd3"));
+
+        System.out.println(cacheProxy.multiplyOnTwo(3, 17d));
+        System.out.println(cacheProxy.multiplyOnTwo(3, 15d));
+        System.out.println(cacheProxy.multiplyOnTwo(3, 17d));
+        System.out.println(cacheProxy.multiplyOnTwo(4, 17d));
     }
 }

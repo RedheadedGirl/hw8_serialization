@@ -15,4 +15,9 @@ public class WorkServiceImpl implements WorkService {
     public List<String> work(String item) {
         return List.of(item);
     }
+
+    @Override
+    public double multiplyOnTwo(int number, Double multiplier) {
+        return number * 2;
+    }
 }
