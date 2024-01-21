@@ -1,6 +1,8 @@
 package org.example;
 
 import org.example.enums.StoreType;
+import org.example.exceptions.SerializationException;
+import org.example.exceptions.SettingsException;
 import org.example.interfaces.Cache;
 
 import java.io.*;
@@ -52,7 +54,7 @@ public class CacheProxy implements InvocationHandler {
         if (method.getReturnType().isAssignableFrom(List.class)) {
             int enoughStoreAmount = method.getAnnotation(Cache.class).enoughStoreAmount();
             if (enoughStoreAmount < 0) {
-                // throw неверно задан параметр
+                throw new SettingsException("Неверно указан размер хранилища!");
             }
             return enoughStoreAmount > map.size();
         }
@@ -62,10 +64,8 @@ public class CacheProxy implements InvocationHandler {
     private void serialize(HashMap<String, List<String>> map) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("saved.bin"))) {
             oos.writeObject(map);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new SerializationException("Возникла ошибка при сериализации данных в файл");
         }
     }
 
@@ -73,11 +73,11 @@ public class CacheProxy implements InvocationHandler {
         try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream("saved.bin"))) {
             return (HashMap<String, List<String>>) oos.readObject();
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new SerializationException("Не найден файл для десериализации");
         } catch (IOException e) {
             return new HashMap<>();
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new SerializationException("Проблемы с кастованием при десериализации");
         }
     }
 
