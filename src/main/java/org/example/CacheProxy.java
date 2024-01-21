@@ -1,18 +1,20 @@
 package org.example;
 
 import org.example.enums.StoreType;
+import org.example.interfaces.Cache;
 
 import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CacheProxy implements InvocationHandler {
 
-    private final Map<String, List<String>> resultByArg = new HashMap<>();
+    private Map<String, List<String>> resultByArg = new HashMap<>();
     private Object target;
 
     public CacheProxy(Object target) {
@@ -26,13 +28,17 @@ public class CacheProxy implements InvocationHandler {
                 return findResultInMemoryOrInvoke(method, args);
             } else {
                 HashMap<String, List<String>> deserialized = deserialize(); // попробуем достать результат из файла
-                String keyForMap = createKeyForMap(args);
+                String keyForMap = createKeyForMap(args, method);
                 if (deserialized.containsKey(keyForMap)) { // если в файле нашли такой ключ
                     return deserialized.get(keyForMap);
                 } else { // иначе вызовем метод запишем результат в файл
                     System.out.println("key not found in file, new invocation");
                     List<String> result = (List<String>) method.invoke(target, args);
-                    deserialized.put(createKeyForMap(args), result);
+                    if (!checkMapHasFreeSpace(method, deserialized)) {
+                        System.out.println("Хранилище заполнено, новые данные не закэшированы");
+                        return result;
+                    }
+                    deserialized.put(createKeyForMap(args, method), result);
                     serialize(deserialized);
                     return result;
                 }
@@ -40,6 +46,17 @@ public class CacheProxy implements InvocationHandler {
         } else {
             return method.invoke(target, args);
         }
+    }
+
+    private boolean checkMapHasFreeSpace(Method method, Map<String, List<String>> map) {
+        if (method.getReturnType().isAssignableFrom(List.class)) {
+            int enoughStoreAmount = method.getAnnotation(Cache.class).enoughStoreAmount();
+            if (enoughStoreAmount < 0) {
+                // throw неверно задан параметр
+            }
+            return enoughStoreAmount > map.size();
+        }
+        return true;
     }
 
     private void serialize(HashMap<String, List<String>> map) {
@@ -66,23 +83,39 @@ public class CacheProxy implements InvocationHandler {
 
     private Object findResultInMemoryOrInvoke(Method method, Object[] args) throws InvocationTargetException,
             IllegalAccessException {
-        String keyForMap = createKeyForMap(args);
+        String keyForMap = createKeyForMap(args, method);
         if (!resultByArg.containsKey(keyForMap)) {
             System.out.println("key not found in memory, new invocation");
             List<String> result = (List<String>) method.invoke(target, args);
+            if (!checkMapHasFreeSpace(method, resultByArg)) {
+                System.out.println("Хранилище заполнено, новые данные не закэшированы");
+                return result;
+            }
             resultByArg.put(keyForMap, result);
         }
         return resultByArg.get(keyForMap);
     }
 
     /**
-     * Наша мапа в качестве ключа хранит аргументы, приведенные к toString
+     * Наша мапа в качестве ключа хранит аргументы, приведенные к toString.
+     * ignoreFields - типы полей, которые игнорируются при создании ключа
      */
-    private String createKeyForMap(Object[] args) {
+    private String createKeyForMap(Object[] args, Method method) {
+        Class[] ignore = method.getAnnotation(Cache.class).ignoreFields();
         String keyForMap = "";
-        for (Object arg: args) {
-            keyForMap += arg.toString();
+        if (ignore.length == 0) {
+            for (Object arg : args) {
+                keyForMap += arg.toString();
+            }
+        } else {
+            for (Object arg : args) {
+                boolean argToBeIgnored = Arrays.stream(ignore).anyMatch(ignoringClass -> arg.getClass().isAssignableFrom(ignoringClass));
+                if (!argToBeIgnored) {
+                    keyForMap += arg.toString();
+                }
+            }
         }
         return keyForMap;
+
     }
 }

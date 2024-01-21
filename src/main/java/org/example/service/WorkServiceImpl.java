@@ -13,6 +13,6 @@ public class WorkServiceImpl implements WorkService {
 
     @Override
     public List<String> work(String item) {
-        return null;
+        return List.of(item);
     }
 }
