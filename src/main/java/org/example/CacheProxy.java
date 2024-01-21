@@ -3,6 +3,7 @@ package org.example;
 import org.example.enums.StoreType;
 import org.example.utils.MapUtil;
 import org.example.utils.SerializationUtil;
+import org.example.utils.ZipUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +41,9 @@ public class CacheProxy implements InvocationHandler {
                     }
                     deserialized.put(MapUtil.createKeyForMap(args, method), result);
                     SerializationUtil.serialize(deserialized, serializationFileName);
+                    if (method.getAnnotation(org.example.interfaces.Cache.class).zip()) {
+                        ZipUtil.zip(serializationFileName);
+                    }
                     return result;
                 }
             }
