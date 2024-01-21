@@ -102,7 +102,7 @@ public class CacheProxy implements InvocationHandler {
      */
     private String createKeyForMap(Object[] args, Method method) {
         Class[] ignore = method.getAnnotation(Cache.class).ignoreFields();
-        String keyForMap = "";
+        String keyForMap = method.getName();
         if (ignore.length == 0) {
             for (Object arg : args) {
                 keyForMap += arg.toString();
