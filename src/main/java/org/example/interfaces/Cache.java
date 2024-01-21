@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 public @interface Cache {
     public StoreType cacheType() default StoreType.IN_MEMORY;
-    public String fileNamePrefix() default "";
+    public String prefix() default "";
     public boolean zip() default false;
     public Class[] ignoreFields() default {};
     public int enoughStoreAmount() default 100;

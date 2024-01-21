@@ -7,7 +7,7 @@ import static org.example.enums.StoreType.FILE;
 import static org.example.enums.StoreType.IN_MEMORY;
 
 public interface WorkService {
-    @Cache(cacheType = FILE, fileNamePrefix = "data", zip = true, ignoreFields = {String.class, Double.class})
+    @Cache(cacheType = FILE, prefix = "prefix", zip = true, ignoreFields = {String.class, Double.class})
     List<String> run(String item, double value, Date date);
 
     @Cache(cacheType = IN_MEMORY, enoughStoreAmount = 2)

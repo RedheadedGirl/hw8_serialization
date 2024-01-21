@@ -102,7 +102,11 @@ public class CacheProxy implements InvocationHandler {
      */
     private String createKeyForMap(Object[] args, Method method) {
         Class[] ignore = method.getAnnotation(Cache.class).ignoreFields();
+        String prefix = method.getAnnotation(Cache.class).prefix();
         String keyForMap = method.getName();
+        if (!prefix.isEmpty()) {
+            keyForMap = prefix + method.getName(); // использую префикс как добавку к названию метода если он указан
+        }
         if (ignore.length == 0) {
             for (Object arg : args) {
                 keyForMap += arg.toString();
@@ -116,6 +120,5 @@ public class CacheProxy implements InvocationHandler {
             }
         }
         return keyForMap;
-
     }
 }
